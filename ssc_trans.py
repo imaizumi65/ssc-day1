@@ -3,7 +3,7 @@ from ssc_core import AMAX, OpCode, Word
 
 
 class SSCTranslator:
-    """簡易記法 (J/0, L/5 等) を機械語 (Wordのリスト) に変換する1パス・トランスレータ"""
+    """簡易記法 (J/0, L/5, D/3 等) を機械語 (Wordのリスト) に変換する1パス・トランスレータ"""
 
     OP_CHAR_MAP = {
         "J": OpCode.JUMP,
@@ -60,22 +60,34 @@ class SSCTranslator:
                         f"Line {line_num}: Invalid line format '{line}'"
                     )
 
-            try:
-                op = self.OP_CHAR_MAP[op_char]
-                addr = int(addr_str, 0)
-            except KeyError:
-                raise SyntaxError(
-                    f"Line {line_num}: Unknown opcode '{op_char}'"
-                )
-            except ValueError:
-                raise SyntaxError(
-                    f"Line {line_num}: Invalid address '{addr_str}'"
-                )
+            # D/数値 の場合は指定された数値をそのまま8ビットデータとして埋め込む
+            if op_char == "D":
+                try:
+                    val = int(addr_str, 0)
+                except ValueError:
+                    raise SyntaxError(
+                        f"Line {line_num}: Invalid data value '{addr_str}'"
+                    )
+                target_mem[pc] = Word(val & 0xFF)
+            else:
+                # 通常命令 (J, A, B, L, T, R, W, S) の処理
+                try:
+                    op = self.OP_CHAR_MAP[op_char]
+                    addr = int(addr_str, 0)
+                except KeyError:
+                    raise SyntaxError(
+                        f"Line {line_num}: Unknown opcode '{op_char}'"
+                    )
+                except ValueError:
+                    raise SyntaxError(
+                        f"Line {line_num}: Invalid address '{addr_str}'"
+                    )
 
-            w = Word()
-            w.op = op
-            w.addr = addr & 0x1F
-            target_mem[pc] = w
+                w = Word()
+                w.op = op
+                w.addr = addr & 0x1F
+                target_mem[pc] = w
+
             pc += 1
 
         return target_mem

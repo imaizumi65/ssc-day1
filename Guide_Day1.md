@@ -24,8 +24,6 @@ SSCは、8ビットの語長と32ワードのメインメモリを持つ教育�
   - **PC (Program Counter)**: 次に実行する命令のメモリ番地を保持（5ビット）
   - **AC (Accumulator)**: 演算結果やデータ転送の中間値を保持する主レジスタ（8ビット）
 
-
-
 ### 2.2 命令フォーマット
 
 SSCの1ワード（8ビット）は、上位3ビットの**オペコード (OpCode)** と、下位5ビットの**オペランドアドレス (Address)** で構成される。
@@ -39,37 +37,42 @@ SSCの1ワード（8ビット）は、上位3ビットの**オペコード (OpCo
 
 ### 2.3 命令セット一覧
 
-| オペコード (2進) | ニーモニック | 略記 | 動作説明 |
-| --- | --- | --- | --- |
-| `000` (`0`) | **JUMP** | `J` | アドレス $n=0$ の場合は**プログラム停止 (HALT)**。 $n \neq 0$ の場合、$\text{AC} \ge 0$ であれば $\text{PC} \leftarrow n$ に分岐。 |
-| `001` (`1`) | **ADD** | `A` | $\text{AC} \leftarrow (\text{AC} + \text{Memory}[n]) \pmod{256}$ |
-| `010` (`2`) | **SUB** | `B` | $\text{AC} \leftarrow (\text{AC} - \text{Memory}[n]) \pmod{256}$ |
-| `011` (`3`) | **LOAD** | `L` | $\text{AC} \leftarrow \text{Memory}[n]$ |
-| `100` (`4`) | **STORE** | `T` | $\text{Memory}[n] \leftarrow \text{AC}$ |
-| `101` (`5`) | **READ** | `R` | 入力装置から値を読み込み $\text{Memory}[n]$ に格納 |
-| `110` (`6`) | **WRITE** | `W` | $\text{Memory}[n]$ の内容を表示出力 |
-| `111` (`7`) | **SHIFT** | `S` | $\text{AC} \leftarrow (\text{AC} \ll n) \pmod{256}$ |
+| オペコード (10進) | ニーモニック | 略記 | 動作説明 |
+|-------------------| --- | --- | --- |
+| `000` (`0`)       | **JUMP** | `J` | アドレス $n=0$ の場合は**プログラム停止 (HALT)**。 $n \neq 0$ の場合、$\text{AC} \ge 0$ であれば $\text{PC} \leftarrow n$ に分岐。
+| `001` (`1`)       | **ADD** | `A` | $\text{AC} \leftarrow (\text{AC} + \text{Memory}[n]) \pmod{256}$<br> |
+| `010` (`2`)       | **SUB** | `B` | $\text{AC} \leftarrow (\text{AC} - \text{Memory}[n]) \pmod{256}$<br> |
+| `011` (`3`)       | **LOAD** | `L` | $\text{AC} \leftarrow \text{Memory}[n]$<br> |
+| `100` (`4`)       | **STORE** | `T` | $\text{Memory}[n] \leftarrow \text{AC}$<br> |
+| `101` (`5`)       | **READ** | `R` | 入力装置から値を読み込み $\text{Memory}[n]$ に格納
+| `110` (`6`)       | **WRITE** | `W` | $\text{Memory}[n]$ の内容を表示出力
+| `111` (`7`)       | **SHIFT** | `S` | $\text{AC} \leftarrow (\text{AC} \ll n) \pmod{256}$<br> |
+
+#### 2.4 データ定義疑似命令（`D` 命令）
+
+`ssc_trans.py` では、上記 CPU 命令に加えてデータ領域を定義するための**疑似命令 (Pseudo-instruction)** が用意されている。
+* **`D/n` (Data)**: 上位3ビットのオペコード合成を行わず、指定した数値 $n$ ($0 \sim 255$) をそのまま 1 ワード（8ビット）のデータとしてメモリセルに直接配置する。
+* **例**: `D/5` $\rightarrow$ `00000101`（数値の 5 を配置）、`D/255` $\rightarrow$ `11111111`（数値の 255 を配置）
 
 ---
 
 ## 3. 配布ファイルと実験環境
 
 配布されたファイル群を同一ディレクトリに配置して作業を行うこと。
-
 * **`ssc_core.py`**（共通基盤・変更不要）: データ構造（`Word`）、オペコード定義（`OpCode`）、ファイル入出力関数（`ssc_read`, `ssc_write`）を提供する。
 * **`ssc_emu.py`**（**課題1対象**）: SSCエミュレータのテンプレート。
 * **`ssc_dis.py`**（**課題2対象**）: 簡易ディスアセンブラのテンプレート。
-* **`ssc_trans.py`**（参考ツール）: 簡易記法（`J/0` 等）から機械語バイナリを生成するトランスレータ。
+* **`ssc_trans.py`**（参考ツール）: 簡易記法（`J/0`, `D/5` 等）から機械語バイナリを生成するトランスレータ。
 
 ---
 
 ## 4. タイムスケジュール（目標時間：270分）
 
-| 時間配分      | 内容                                                   |
-|---------------|--------------------------------------------------------|
-| **30分程度**  | 講義：プロセッサ動作原理、命令デコード、課題仕様の説明 |
-| **120分程度** | **課題1**: エミュレータの実装 (`ssc_emu.py`)           |
-| **120分程度** | **課題2**: 簡易ディスアセンブラの実装 (`ssc_dis.py`)   |
+| 時間配分      | 内容 |
+|---------------| --- |
+| **30分程度**  | 講義：プロセッサ動作原理、命令デコード、課題仕様の説明
+| **150分程度** | **課題1**: エミュレータの実装 (`ssc_emu.py`)
+| **90分程度**  | **課題2**: 簡易ディスアセンブラの実装 (`ssc_dis.py`)
 
 ---
 
@@ -82,25 +85,19 @@ SSCの1ワード（8ビット）は、上位3ビットの**オペコード (OpCo
 #### 実装要件
 
 1. **フェッチとデコード**:
-* 現在の $\text{PC}$ が指すメモリセル `curr = self.memory[self.pc]` から、オペコード `op` とアドレス `addr` を抽出する（`curr.op` および `curr.addr` プロパティの利用を推奨）。
-
-
+   * 現在の $\text{PC}$ が指すメモリセル `curr = self.memory[self.pc]` から、オペコード `op` とアドレス `addr` を抽出する（`curr.op` および `curr.addr` プロパティの利用を推奨）。
 2. **PCの更新**:
-* 次の命令のフェッチに備えて $\text{PC}$ をインクリメントする ($\text{PC} \leftarrow (\text{PC} + 1) \pmod{32}$)。
-
-
+   * 次の命令のフェッチに備えて $\text{PC}$ をインクリメントする ($\text{PC} \leftarrow (\text{PC} + 1) \pmod{32}$)。
 3. **命令の実行ディスパッチ**:
-* `match-case` 文または `if-elif` 文を用いて、各オペコードに応じた処理を記述する。
-* **JUMP (0)**: `addr == 0` の場合、プログラム停止メッセージを表示して関数を抜け出す (`return`)。`addr != 0` かつ `to_signed(self.ac) >= 0` の場合、$\text{PC} \leftarrow \text{addr}$ とする。
-* **ADD (1)**: $\text{AC} \leftarrow (\text{AC} + \text{memory}[\text{addr}].v) \& 0\text{xFF}$
-* **SUB (2)**: $\text{AC} \leftarrow (\text{AC} - \text{memory}[\text{addr}].v) \& 0\text{xFF}$
-* **LOAD (3)**: $\text{AC} \leftarrow \text{memory}[\text{addr}].v$
-* **STORE (4)**: $\text{memory}[\text{addr}].v \leftarrow \text{AC}$
-* **READ (5)**: 標準入力（または指定ストリーム）から読み込んだ数値を `memory[addr].v` に格納する。
-* **WRITE (6)**: `memory[addr].v` の値を指定フォーマットで出力する。
-* **SHIFT (7)**: $\text{AC} \leftarrow (\text{AC} \ll \text{addr}) \& 0\text{xFF}$
-
-
+   * `match-case` 文または `if-elif` 文を用いて、各オペコードに応じた処理を記述する。
+     * **JUMP (0)**: `addr == 0` の場合、プログラム停止メッセージを表示して関数を抜け出す (`return`)。`addr != 0` かつ `to_signed(self.ac) >= 0` の場合、$\text{PC} \leftarrow \text{addr}$ とする。
+     * **ADD (1)**: $\text{AC} \leftarrow (\text{AC} + \text{memory}[\text{addr}].v) \& 0\text{xFF}$
+     * **SUB (2)**: $\text{AC} \leftarrow (\text{AC} - \text{memory}[\text{addr}].v) \& 0\text{xFF}$
+     * **LOAD (3)**: $\text{AC} \leftarrow \text{memory}[\text{addr}].v$
+     * **STORE (4)**: $\text{memory}[\text{addr}].v \leftarrow \text{AC}$
+     * **READ (5)**: 標準入力（または指定ストリーム）から読み込んだ数値を `memory[addr].v` に格納する。
+     * **WRITE (6)**: `memory[addr].v` の値を指定フォーマットで出力する。
+     * **SHIFT (7)**: $\text{AC} \leftarrow (\text{AC} \ll \text{addr}) \& 0\text{xFF}$
 
 #### 実行確認手順
 
@@ -108,7 +105,6 @@ SSCの1ワード（8ビット）は、上位3ビットの**オペコード (OpCo
 
 ```bash
 python ssc_emu.py
-
 ```
 
 ---
@@ -127,36 +123,37 @@ python ssc_emu.py
 #### 実行確認手順
 
 `ssc_trans.py` を用いてアセンブリサンプルを変換し、それを `ssc_dis.py` にパイプ渡して逆変換結果を確認せよ。
-
 1. **テスト用アセンブリファイル (`sample.sss`) の作成**:
 ```text
-L/5
-A/5
-T/5
-W/5
-J/0
-
+L/5    ; アドレス5の値をロード
+A/6    ; アドレス6の値を加算
+T/7    ; 結果をアドレス7に保存
+W/7    ; アドレス7を出力
+J/0    ; 停止
+D/3    ; データ: 3 (アドレス5)
+D/5    ; データ: 5 (アドレス6)
+D/255  ; データ: 255 (アドレス7, 初期値)
 ```
-
 
 2. **変換と逆変換のパイプライン実行**:
+
 ```bash
 python ssc_trans.py sample.sss | python ssc_dis.py
-
 ```
-
 
 3. **期待される出力結果**:
+
 ```text
+L/5
+A/6
+T/7
+W/7
 J/0
-A/5
-B/0
-...
-
+J/3
+J/5
+S/31
 ```
-
-
-元の `sample.sss` と同等の簡易命令文字列が出力されることを確認すること。
+*(※注: データ領域である `D/3` (`00000011`) や `D/255` (`11111111`) も、ディスアセンブラからは区別がつかないため `J/3` や `S/31` といった命令文字列として出力される点に注意すること)*
 
 ---
 
@@ -166,8 +163,8 @@ B/0
 
 1. **ステップ実行デバッグの活用**:
 `SSCEmulator(debug=True, step=True)` として起動し、インタラクティブプロンプト上でメモリ書き換えコマンド（`m <addr> <val>`）やレジスタ変更（`ac <val>`）の挙動を確認せよ。
-2. **手動プログラム作成**:
-簡易記法で「2つの値を入力し、その和を出力して停止するプログラム」を作成し、`ssc_trans.py` と `ssc_emu.py` を組み合わせて実行せよ。
+2. **手動プログラム作成とデータ定義の活用**:
+`D/n` によるデータ定義を活用し、「2つの値を `READ` 命令で入力し、その和を出力して停止するプログラム」などを簡易記法で作成分析せよ。
 
 ---
 
@@ -178,4 +175,6 @@ B/0
 1. 実装した `ssc_emu.py` の `run()` メソッドのコードと解説。
 2. 実装した `ssc_dis.py` の `disassemble()` メソッドのコードと解説。
 3. 課題1および課題2の実行結果のスクリーンショットまたはログ出力。
-4. 考察：命令サイクルにおけるデコード処理の役割と、演算処理におけるオーバーフロー処理（`& 0xFF`）の必要性について述べよ。
+4. 考察：
+   * 命令サイクルにおけるデコード処理の役割と、演算処理におけるオーバーフロー処理（`& 0xFF`）の必要性について述べよ。
+   * ディスアセンブラでデータ領域（`D/3` 等）を変換した際、命令（`J/3` 等）として出力されてしまう理由を、「プログラムとデータが同じメモリ上に配置されるアーキテクチャ（フォン・ノイマン型）」の観点から考察せよ。
