@@ -1,5 +1,11 @@
+import io
 import sys
+from pathlib import Path
+
 from ssc_core import AMAX, Word, ssc_read
+
+# from ssc_dis import * 実行時の名前空間汚染を防止
+__all__ = ["SSCDisassembler", "SSC_OP_CHARS", "SSC_OP_NAMES"]
 
 # 命令名・文字テーブル
 SSC_OP_CHARS = ["J", "A", "B", "L", "T", "R", "W", "S"]
@@ -29,8 +35,13 @@ class SSCDisassembler:
 def main(
     args_list: list[str] | None = None,
     file: str | None = None,
+    source_text: str | None = None,
 ):
-    """メイン関数"""
+    """ディスアセンブラのメイン関数
+
+    CLIコマンド、パイプライン（標準入力）、PyCharm等からの直接呼び出しの
+    全てに対応しています。
+    """
     import argparse
 
     parser = argparse.ArgumentParser(
@@ -47,7 +58,10 @@ def main(
     parsed_args = parser.parse_args(args_list)
     target_file = file if file is not None else parsed_args.file
 
-    if target_file:
+    # 入力ソースの確定処理 (明示文字列 > 指定ファイル > 標準入力)
+    if source_text is not None:
+        fp = io.StringIO(source_text)
+    elif target_file:
         try:
             fp = open(target_file, "r", encoding="utf-8", errors="ignore")
         except OSError as e:
@@ -62,7 +76,7 @@ def main(
         sys.stderr.write(f"ssc_dis: program format error ({e})\n")
         sys.exit(3)
     finally:
-        if fp is not sys.stdin:
+        if fp is not sys.stdin and not isinstance(fp, io.StringIO):
             fp.close()
 
     disassembler = SSCDisassembler()
@@ -75,5 +89,31 @@ def main(
         sys.exit(1)
 
 
+# デフォルトのセルフテスト用サンプルプログラム
+SAMPLE_PROGRAM = """
+ 0(00000): 01100101  ; L/5 (アドレス5の「3」をロード)
+ 1(00001): 00100110  ; A/6 (アドレス6の「5」を加算)
+ 2(00010): 10000111  ; T/7 (アドレス7に「8」を保存)
+ 3(00011): 11000111  ; W/7 (アドレス7の「8」を出力)
+ 4(00100): 00000000  ; J/0 (プログラム停止)
+ 5(00101): 00000011  ; データ: 3
+ 6(00110): 00000101  ; データ: 5
+ 7(00111): 11111111  ; データ: ダミー初期値 (書き換え確認用)
+"""
+
 if __name__ == "__main__":
-    main()
+    # =========================================================================
+    # 【PyCharm / IDE デバッグ時の使い方ガイド】
+    #
+    # IDE（PyCharm等）からこのファイルを直接「Run / Debug」する場合、
+    # カレントディレクトリは src/ になるため、samples/ へのパスには `../` を付けます。
+    # =========================================================================
+
+    # --- パターン A [直接文字列]: 機械語文字列を直接渡してテスト ---
+    main(source_text=SAMPLE_PROGRAM)
+
+    # --- パターン B [ファイル指定]: 指定した .sso ファイルを逆アセンブル ---
+    # main(file="../samples/loop.sso")
+
+    # --- パターン C [標準入力]: CLIのパイプラインや手動入力をテスト（引数なし） ---
+    # main()

@@ -46,23 +46,31 @@ class SSCEmulator:
         print()
 
     def load_program(
-        self, source: list[Word] | str | Path | TextIO
+            self, source: list[Word] | str | Path | TextIO
     ) -> None:
-        """各種入力からプログラムを読み込み、メモリにセット"""
+        """Wordオブジェクト配列、文字列、ファイルパス、ストリーム等からプログラムを読み込む"""
         if isinstance(source, list) and all(
-            isinstance(w, Word) for w in source
+                isinstance(w, Word) for w in source
         ):
             p = source[:AMAX]
             self.memory[: len(p)] = [Word(w.v) for w in p]
-        else:
-            if isinstance(source, str) and not Path(source).is_file():
-                source = io.StringIO(source)
-
-            if isinstance(source, (str, Path)):
-                with open(source, "r", encoding="utf-8") as f:
+        elif isinstance(source, Path):
+            # Pathオブジェクトの場合は直接開く（存在しない場合は FileNotFoundError）
+            with open(source, "r", encoding="utf-8") as f:
+                ssc_read(f, memory=self.memory)
+        elif isinstance(source, str):
+            # 改行が含まれていない場合は「ファイルパス」とみなす
+            if "\n" not in source:
+                path = Path(source)
+                if not path.is_file():
+                    raise FileNotFoundError(f"指定されたファイルが見つかりません: '{source}'")
+                with open(path, "r", encoding="utf-8") as f:
                     ssc_read(f, memory=self.memory)
             else:
-                ssc_read(source, memory=self.memory)
+                # 改行を含む文字列は「ソースコードのテキスト」として扱う
+                ssc_read(io.StringIO(source), memory=self.memory)
+        else:
+            ssc_read(source, memory=self.memory)
 
     def _interactive_prompt(self) -> None:
         """ステップ実行用のプロンプト"""
@@ -253,16 +261,10 @@ if __name__ == "__main__":
     # =========================================================================
 
     # --- パターン A [基本テスト]: 組込サンプルプログラムを渡して実行 ---
-    main(source_text=SAMPLE_PROGRAM)
+    main(source_text=SAMPLE_PROGRAM, wait_ms=100, debug=True, step=False)
 
     # --- パターン B [ファイル指定]: 指定した .sso ファイルをロードして実行 ---
     # main(file="../samples/loop.sso")
 
-    # --- パターン C [デバッグ]: トレースログを出力しながら実行 ---
-    # main(file="../samples/loop.sso", debug=True)
-
-    # --- パターン D [ステップ実行]: 1命令ごとにプロンプトを止めてレジスタ確認 ---
-    # main(file="../samples/loop.sso", step=True)
-
-    # --- パターン E [標準入力]: CLIのパイプラインや手動入力をテスト（引数なし） ---
+    # --- パターン C [標準入力]: CLIのパイプラインや手動入力をテスト（引数なし） ---
     # main()

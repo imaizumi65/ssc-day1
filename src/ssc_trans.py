@@ -1,5 +1,11 @@
+import io
 import sys
-from ssc_core import AMAX, OpCode, Word
+from pathlib import Path
+
+from ssc_core import AMAX, OpCode, Word, ssc_write
+
+# from ssc_trans import * 実行時の名前空間汚染を防止
+__all__ = ["SSCTranslator"]
 
 
 class SSCTranslator:
@@ -98,19 +104,28 @@ def main(
     file: str | None = None,
     source_text: str | None = None,
 ):
-    """CLIおよびPyCharm等の直接呼び出しに対応したメイン関数"""
+    """トランスレータのメイン関数
+
+    CLIコマンド、パイプライン（標準入力）、PyCharm等からの直接呼び出しの
+    全てに対応しています。
+    """
     import argparse
 
     parser = argparse.ArgumentParser(
         prog="ssc_trans", description="SSC Translator (1-Pass Translator)"
     )
     parser.add_argument(
-        "file", nargs="?", type=str, default=None, help="Input .sss file"
+        "file",
+        nargs="?",
+        type=str,
+        default=None,
+        help="Input .sss file (default: stdin)",
     )
 
     parsed_args = parser.parse_args(args_list)
     target_file = file if file is not None else parsed_args.file
 
+    # 入力ソースの確定処理 (明示文字列 > 指定ファイル > 標準入力)
     if source_text is None:
         if target_file:
             try:
@@ -129,9 +144,34 @@ def main(
         sys.stderr.write(f"ssc_trans error: {e}\n")
         sys.exit(1)
 
-    for i, w in enumerate(translated_mem):
-        print(f"{i:02d}: {w.to_bin()}")
+    ssc_write(translated_mem, sys.stdout)
+
+
+# デフォルトのセルフテスト用サンプルプログラム
+SAMPLE_PROGRAM = """L/5
+A/6
+T/7
+W/7
+J/0
+D/3
+D/5
+D/255
+"""
 
 
 if __name__ == "__main__":
-    main()
+    # =========================================================================
+    # 【PyCharm / IDE デバッグ時の使い方ガイド】
+    #
+    # IDE（PyCharm等）からこのファイルを直接「Run / Debug」する場合、
+    # カレントディレクトリは src/ になるため、samples/ へのパスには `../` を付けます。
+    # =========================================================================
+
+    # --- パターン A [基本テスト]: 組込サンプルプログラムを渡して変換 ---
+    main(source_text=SAMPLE_PROGRAM)
+
+    # --- パターン B [ファイル指定]: 指定した .sss ファイルをロードして変換 ---
+    # main(file="../samples/add.sss")
+
+    # --- パターン C [標準入力]: CLIのパイプラインや手動入力をテスト（引数なし） ---
+    # main()
