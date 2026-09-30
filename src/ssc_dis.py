@@ -127,10 +127,10 @@ if __name__ == "__main__":
     # =========================================================================
 
     # --- パターン A [基本テスト]: 組込サンプルプログラムを渡して逆アセンブル ---
-    # main(source_text=SAMPLE_PROGRAM)
+    main(source_text=SAMPLE_PROGRAM)
 
     # --- パターン B [ファイル指定]: 指定した .sso ファイルを逆アセンブル ---
-    main(file="../samples/loop.sso")
+    # main(file="../samples/loop.sso")
 
     # --- パターン C [標準入力]: CLIのパイプラインや手動入力をテスト（引数なし） ---
     # main()
