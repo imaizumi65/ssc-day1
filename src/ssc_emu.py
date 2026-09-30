@@ -21,11 +21,11 @@ class SSCEmulator:
     """Slow Scan Computer (SSC) エミュレータ"""
 
     def __init__(
-        self,
-        debug: bool = False,
-        step: bool = False,
-        wait_ms: int = 0,
-        random_mem: bool = True,
+            self,
+            debug: bool = False,
+            step: bool = False,
+            wait_ms: int = 0,
+            random_mem: bool = True,
     ):
         self.debug = debug
         self.step = step
@@ -173,12 +173,12 @@ class SSCEmulator:
 
 
 def main(
-    args_list: list[str] | None = None,
-    file: str | None = None,
-    source_text: str | None = None,
-    debug: bool | None = None,
-    step: bool | None = None,
-    wait_ms: int | None = None,
+        args_list: list[str] | None = None,
+        file: str | None = None,
+        source_text: str | None = None,
+        debug: bool | None = None,
+        step: bool | None = None,
+        wait_ms: int | None = None,
 ):
     """エミュレータのメイン関数
 
@@ -222,6 +222,8 @@ def main(
     emu = SSCEmulator(debug=run_debug, step=run_step, wait_ms=run_wait)
 
     # 入力ソースの確定処理 (明示文字列 > 指定ファイル > 標準入力)
+    run_input_fp = None
+
     if source_text is not None:
         emu.load_program(source_text)
     elif target_file:
@@ -232,10 +234,19 @@ def main(
             sys.exit(2)
     else:
         # 引数・指定なし：標準入力 (stdin) から読み込み
-        emu.load_program(sys.stdin.read())
+        # 空行（またはコード終端）が来るまでをプログラムとして読み込む
+        prog_lines = []
+        for line in sys.stdin:
+            if not line.strip():  # 空行を検出したらプログラム領域の終端とみなす
+                break
+            prog_lines.append(line)
+
+        emu.load_program("\n".join(prog_lines))
+        # 残りの sys.stdin を READ 命令実行時の入力ソースとして引き継ぐ
+        run_input_fp = sys.stdin
 
     try:
-        emu.run()
+        emu.run(input_fp=run_input_fp)
     except NotImplementedError as e:
         print(f"\n[エラー] {e}")
 
@@ -251,7 +262,6 @@ SAMPLE_PROGRAM = """
  6(00110): 00000101  ; データ: 5
  7(00111): 11111111  ; データ: ダミー初期値 (書き換え確認用)
 """
-
 
 if __name__ == "__main__":
     # =========================================================================
