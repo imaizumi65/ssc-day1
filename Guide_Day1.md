@@ -39,13 +39,13 @@ SSCの1ワード（8ビット）は、上位3ビットの**オペコード (OpCo
 
 | オペコード (10進) | ニーモニック | 略記 | 動作説明 |
 |-------------------| --- | --- | --- |
-| `000` (`0`)       | **JUMP** | `J` | アドレス $n=0$ の場合は**プログラム停止 (HALT)**。 $n \neq 0$ の場合、$\text{AC} \ge 0$ であれば $\text{PC} \leftarrow n$ に分岐。
+| `000` (`0`)       | **JUMP** | `J` | アドレス $n=0$ の場合は**プログラム停止 (HALT)**。 $n \neq 0$ の場合、$\text{AC} \ge 0$ であれば $\text{PC} \leftarrow n$ に分岐。 |
 | `001` (`1`)       | **ADD** | `A` | $\text{AC} \leftarrow (\text{AC} + \text{Memory}[n]) \pmod{256}$<br> |
 | `010` (`2`)       | **SUB** | `B` | $\text{AC} \leftarrow (\text{AC} - \text{Memory}[n]) \pmod{256}$<br> |
 | `011` (`3`)       | **LOAD** | `L` | $\text{AC} \leftarrow \text{Memory}[n]$<br> |
 | `100` (`4`)       | **STORE** | `T` | $\text{Memory}[n] \leftarrow \text{AC}$<br> |
-| `101` (`5`)       | **READ** | `R` | 入力装置から値を読み込み $\text{Memory}[n]$ に格納
-| `110` (`6`)       | **WRITE** | `W` | $\text{Memory}[n]$ の内容を表示出力
+| `101` (`5`)       | **READ** | `R` | 入力装置から値を読み込み $\text{Memory}[n]$ に格納 |
+| `110` (`6`)       | **WRITE** | `W` | $\text{Memory}[n]$ の内容を表示出力 |
 | `111` (`7`)       | **SHIFT** | `S` | $\text{AC} \leftarrow (\text{AC} \ll n) \pmod{256}$<br> |
 
 #### 2.4 データ定義疑似命令（`D` 命令）
@@ -80,9 +80,9 @@ Day1/
 
 | 時間配分      | 内容 |
 |---------------| --- |
-| **30分程度**  | 講義：プロセッサ動作原理、命令デコード、課題仕様の説明
-| **150分程度** | **課題1**: エミュレータの実装 (`src/ssc_emu.py`)
-| **90分程度**  | **課題2**: 簡易ディスアセンブラの実装 (`src/ssc_dis.py`)
+| **30分程度**  | 講義：プロセッサ動作原理、命令デコード、課題仕様の説明 |
+| **150分程度** | **課題1**: エミュレータの実装 (`src/ssc_emu.py`) |
+| **90分程度**  | **課題2**: 簡易ディスアセンブラの実装 (`src/ssc_dis.py`) |
 
 ---
 
@@ -111,11 +111,15 @@ Day1/
 
 #### 実行確認手順
 
-ターミナルで `Day1/` ディレクトリに移動し、以下のコマンドを実行して組み込みサンプルプログラム（`samples/loop.sso` 等）が正常に動作し完走することを確認せよ。
+**1. CLI（ターミナル）からの実行確認:**
+ターミナルで `Day1/` ディレクトリに移動し、サンプルプログラム (`samples/loop.sso`) を指定して実行せよ。
 
 ```bash
-python src/ssc_emu.py
+python src/ssc_emu.py samples/loop.sso
 ```
+
+**2. IDE (PyCharm等) からの直接デバッグ実行:**
+`src/ssc_emu.py` の末尾にある `if __name__ == "__main__":` ブロック内のコメントを切り替えることで、組み込みサンプル (`source_text=SAMPLE_PROGRAM`) や指定ファイル (`file="..."`) の動作確認をIDEから直接行えます。
 
 ---
 
