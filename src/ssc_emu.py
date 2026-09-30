@@ -38,7 +38,7 @@ class SSCEmulator:
         self.pc = 0
 
     def dump_memory(self) -> None:
-        """現在の全32ワードのメモリ状態を出力"""
+        """現在の全32ワードのメモリ状態を綺麗に整形して出力"""
         print("=== Memory Dump (32 Words) ===")
         for i, w in enumerate(self.memory):
             end_char = "\n" if i % 4 == 3 else "  "
@@ -73,7 +73,7 @@ class SSCEmulator:
             ssc_read(source, memory=self.memory)
 
     def _interactive_prompt(self) -> None:
-        """ステップ実行用のプロンプト"""
+        """ステップ実行中にEnter以外（値の書き換えコマンド等）を受け付けるインタラクティブプロンプト"""
         print(
             " [Enter]: 次へ | d: ダンプ表示 | m <addr> <val>: メモリ変更 | ac <val>: AC変更 | pc <val>: PC変更"
         )
@@ -137,7 +137,7 @@ class SSCEmulator:
             #  1. curr.op (または上位3ビット) からオペコード (OpCode) を取得
             #  2. curr.addr (または下位5ビット) からアドレス値 (0-31) を取得
             # -------------------------------------------------------------
-            op, addr = curr.op, curr.addr
+            raise NotImplementedError("SSCEmulator.run() の命令のフェッチとデコード処理を実装してください。")
 
             if self.debug:
                 print(
@@ -169,7 +169,7 @@ class SSCEmulator:
             # - OpCode.WRITE : memory[addr].v の値を画面に出力
             # - OpCode.SHIFT : self.ac を addr ビット分だけ左シフト (& 0xFF)
             # -------------------------------------------------------------
-            raise NotImplementedError("SSCEmulator.run() を実装してください。")
+            raise NotImplementedError("SSCEmulator.run() の命令実行処理を実装してください。")
 
 
 def main(
@@ -251,6 +251,7 @@ SAMPLE_PROGRAM = """
  6(00110): 00000101  ; データ: 5
  7(00111): 11111111  ; データ: ダミー初期値 (書き換え確認用)
 """
+
 
 if __name__ == "__main__":
     # =========================================================================

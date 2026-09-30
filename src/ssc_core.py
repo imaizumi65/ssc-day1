@@ -16,6 +16,7 @@ class OpCode(IntEnum):
     SHIFT = 7
 
 
+# Enum から自動生成するオペコードマップ (単一ソース管理)
 OPCODES: dict[str, int] = {op.name.lower(): op.value for op in OpCode}
 
 
@@ -66,12 +67,14 @@ def ssc_read(fp: TextIO, memory: list[Word] | None = None) -> list[Word]:
     if not first_line:
         return memory
 
+    # 1. SSC形式バイナリチェック
     if first_line.startswith("SSC"):
         raw_bytes = fp.buffer.read() if hasattr(fp, "buffer") else b""
         for i, b in enumerate(raw_bytes[:AMAX]):
             memory[i] = Word(b)
         return memory
 
+    # 2. テキスト形式 (.sso) のパース
     lines = [first_line] + fp.readlines()
     for line in lines:
         clean_line = line.split(";")[0].strip()

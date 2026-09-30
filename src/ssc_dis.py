@@ -1,3 +1,4 @@
+from enum import Enum, auto
 import io
 import sys
 from pathlib import Path
@@ -5,22 +6,33 @@ from pathlib import Path
 from ssc_core import AMAX, Word, ssc_read
 
 # from ssc_dis import * 実行時の名前空間汚染を防止
-__all__ = ["SSCDisassembler", "SSC_OP_CHARS", "SSC_OP_NAMES"]
+__all__ = ["SSCDisassembler", "Role", "SSC_OP_NAMES", "SSC_OP_CHARS"]
 
-# 命令名・文字テーブル
-SSC_OP_CHARS = ["J", "A", "B", "L", "T", "R", "W", "S"]
+# オペレーション名テーブル
 SSC_OP_NAMES = ["JUMP", "ADD", "SUB", "LOAD", "STORE", "READ", "WRITE", "SHIFT"]
+SSC_OP_CHARS = ["J", "A", "B", "L", "T", "R", "W", "S"]
+
+
+class Role(Enum):
+    """アドレスの役割を表す列挙型"""
+
+    EXECUTABLE = auto()  # 実行可能コード領域
+    JUMP_TARGET = auto()  # JUMP先ラベル L00:
+    DATA_READ = auto()  # 参照データラベル N00:
+    DATA_WRITE = auto()  # 変数書き込みラベル V00:
 
 
 class SSCDisassembler:
     """【第1回 課題2】簡易ディスアセンブラ"""
 
-    def disassemble(self, memory: list[Word]) -> str:
+
+    def disassemble(self, memory: list[Word], lflag: bool = False) -> str:
         """【第1回 課題2】メモリ配列を受け取り、簡易表記形式の文字列を返せ
 
         例: 各ワードからオペコードとアドレスを取り出し、"L/5" や "J/0"
         のような形式の行を作成して改行で結合して返す。
         """
+
         output_lines = []
 
         # -------------------------------------------------------------
@@ -36,6 +48,7 @@ def main(
     args_list: list[str] | None = None,
     file: str | None = None,
     source_text: str | None = None,
+    lflag: bool | None = None,
 ):
     """ディスアセンブラのメイン関数
 
@@ -45,20 +58,23 @@ def main(
     import argparse
 
     parser = argparse.ArgumentParser(
-        prog="ssc_dis", description="SSC Disassembler (1-to-1 Disassembler)"
+        prog="ssc_dis", description="SSC Disassembler (Reverse Translator)"
     )
     parser.add_argument(
         "file",
         nargs="?",
         type=str,
         default=None,
-        help="Input .sso file (default: stdin)",
+        help="Input SSC binary (.sso) file (default: stdin)",
     )
 
+    # 1. CLI引数のパース
     parsed_args = parser.parse_args(args_list)
+
+    # 2. パラメータの確定（関数の明示指定 > CLI引数）
     target_file = file if file is not None else parsed_args.file
 
-    # 入力ソースの確定処理 (明示文字列 > 指定ファイル > 標準入力)
+    # 3. 入力ソースの確定処理 (明示文字列 > 指定ファイル > 標準入力)
     if source_text is not None:
         fp = io.StringIO(source_text)
     elif target_file:
@@ -101,6 +117,7 @@ SAMPLE_PROGRAM = """
  7(00111): 11111111  ; データ: ダミー初期値 (書き換え確認用)
 """
 
+
 if __name__ == "__main__":
     # =========================================================================
     # 【PyCharm / IDE デバッグ時の使い方ガイド】
@@ -109,11 +126,11 @@ if __name__ == "__main__":
     # カレントディレクトリは src/ になるため、samples/ へのパスには `../` を付けます。
     # =========================================================================
 
-    # --- パターン A [直接文字列]: 機械語文字列を直接渡してテスト ---
-    main(source_text=SAMPLE_PROGRAM)
+    # --- パターン A [基本テスト]: 組込サンプルプログラムを渡して逆アセンブル ---
+    # main(source_text=SAMPLE_PROGRAM)
 
     # --- パターン B [ファイル指定]: 指定した .sso ファイルを逆アセンブル ---
-    # main(file="../samples/loop.sso")
+    main(file="../samples/loop.sso")
 
     # --- パターン C [標準入力]: CLIのパイプラインや手動入力をテスト（引数なし） ---
     # main()
