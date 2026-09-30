@@ -1,10 +1,14 @@
 import io
 import random
+import sys
 import time
 from pathlib import Path
 from typing import TextIO
 
 from ssc_core import AMAX, OpCode, Word, ssc_read
+
+# from ssc_emu import * 実行時の名前空間汚染を防止
+__all__ = ["SSCEmulator", "to_signed"]
 
 
 def to_signed(val: int) -> int:
@@ -160,9 +164,76 @@ class SSCEmulator:
             raise NotImplementedError("SSCEmulator.run() を実装してください。")
 
 
-if __name__ == "__main__":
-    # セルフテスト用サンプルプログラム
-    SAMPLE_PROGRAM = """
+def main(
+    args_list: list[str] | None = None,
+    file: str | None = None,
+    source_text: str | None = None,
+    debug: bool | None = None,
+    step: bool | None = None,
+    wait_ms: int | None = None,
+):
+    """エミュレータのメイン関数
+
+    CLIコマンド、パイプライン（標準入力）、PyCharm等からの直接呼び出しの
+    全てに対応しています。
+    """
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        prog="ssc_emu", description="Slow Scan Computer (SSC) Emulator"
+    )
+    parser.add_argument(
+        "file",
+        nargs="?",
+        type=str,
+        default=None,
+        help="Input binary file (.sso). If omitted, reads from stdin.",
+    )
+    parser.add_argument(
+        "-d", "--debug", action="store_true", help="Enable debug trace output"
+    )
+    parser.add_argument(
+        "-s", "--step", action="store_true", help="Enable interactive step mode"
+    )
+    parser.add_argument(
+        "-w",
+        "--wait",
+        type=int,
+        default=0,
+        help="Wait time between steps in milliseconds",
+    )
+
+    parsed_args = parser.parse_args(args_list)
+
+    # パラメータの確定（関数の明示指定 > CLI引数）
+    target_file = file if file is not None else parsed_args.file
+    run_debug = debug if debug is not None else parsed_args.debug
+    run_step = step if step is not None else parsed_args.step
+    run_wait = wait_ms if wait_ms is not None else parsed_args.wait
+
+    emu = SSCEmulator(debug=run_debug, step=run_step, wait_ms=run_wait)
+
+    # 入力ソースの確定処理 (明示文字列 > 指定ファイル > 標準入力)
+    if source_text is not None:
+        emu.load_program(source_text)
+    elif target_file:
+        try:
+            emu.load_program(target_file)
+        except OSError as e:
+            sys.stderr.write(f"ssc_emu: {e}\n")
+            sys.exit(2)
+    else:
+        # 引数・指定なし：標準入力 (stdin) から読み込み
+        emu.load_program(sys.stdin.read())
+
+    try:
+        emu.run()
+    except NotImplementedError as e:
+        print(f"\n[エラー] {e}")
+
+
+# デフォルトのセルフテスト用サンプルプログラム
+SAMPLE_PROGRAM = """
  0(00000): 01100101  ; L/5 (アドレス5の「3」をロード)
  1(00001): 00100110  ; A/6 (アドレス6の「5」を加算)
  2(00010): 10000111  ; T/7 (アドレス7に「8」を保存)
@@ -172,17 +243,26 @@ if __name__ == "__main__":
  6(00110): 00000101  ; データ: 5
  7(00111): 11111111  ; データ: ダミー初期値 (書き換え確認用)
 """
-    print("=== [SSC Emulator Self-Test] ===")
-    emu = SSCEmulator(debug=False, step=False, wait_ms=100)
-    emu.load_program(SAMPLE_PROGRAM)
 
-    print("\n--- 実行前メモリダンプ ---")
-    emu.dump_memory()
+if __name__ == "__main__":
+    # =========================================================================
+    # 【PyCharm / IDE デバッグ時の使い方ガイド】
+    #
+    # IDE（PyCharm等）からこのファイルを直接「Run / Debug」する場合、
+    # カレントディレクトリは src/ になるため、samples/ へのパスには `../` を付けます。
+    # =========================================================================
 
-    try:
-        emu.run()
-    except NotImplementedError as e:
-        print(f"\n[エラー] {e}")
+    # --- パターン A [基本テスト]: 組込サンプルプログラムを渡して実行 ---
+    main(source_text=SAMPLE_PROGRAM)
 
-    print("\n--- 実行後最終メモリダンプ ---")
-    emu.dump_memory()
+    # --- パターン B [ファイル指定]: 指定した .sso ファイルをロードして実行 ---
+    # main(file="../samples/loop.sso")
+
+    # --- パターン C [デバッグ]: トレースログを出力しながら実行 ---
+    # main(file="../samples/loop.sso", debug=True)
+
+    # --- パターン D [ステップ実行]: 1命令ごとにプロンプトを止めてレジスタ確認 ---
+    # main(file="../samples/loop.sso", step=True)
+
+    # --- パターン E [標準入力]: CLIのパイプラインや手動入力をテスト（引数なし） ---
+    # main()
