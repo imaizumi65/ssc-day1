@@ -97,7 +97,7 @@ def main(
 
     disassembler = SSCDisassembler()
     try:
-        result = disassembler.disassemble(memory)
+        result = disassembler.disassemble(memory, lflag=use_lflag)
         if result:
             print(result)
     except NotImplementedError as e:
@@ -134,3 +134,4 @@ if __name__ == "__main__":
 
     # --- パターン C [標準入力]: CLIのパイプラインや手動入力をテスト（引数なし） ---
     # main()
+

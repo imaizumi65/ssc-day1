@@ -50,7 +50,7 @@ SSCの1ワード（8ビット）は、上位3ビットの**オペコード (OpCo
 
 #### 2.4 データ定義疑似命令（`D` 命令）
 
-`../src/ssc_trans.py` では、上記 CPU 命令に加えてデータ領域を定義するための**疑似命令 (Pseudo-instruction)** が用意されている。
+`src/ssc_trans.py` では、上記 CPU 命令に加えてデータ領域を定義するための**疑似命令 (Pseudo-instruction)** が用意されている。
 * **`D/n` (Data)**: 上位3ビットのオペコード合成を行わず、指定した数値 $n$ ($0 \sim 255$) をそのまま 1 ワード（8ビット）のデータとしてメモリセルに直接配置する。
 * **例**: `D/5` $\rightarrow$ `00000101`（数値の 5 を配置）、`D/255` $\rightarrow$ `11111111`（数値の 255 を配置）
 
@@ -81,16 +81,16 @@ Day1/
 | 時間配分      | 内容 |
 |---------------| --- |
 | **30分程度**  | 講義：プロセッサ動作原理、命令デコード、課題仕様の説明 |
-| **150分程度** | **課題1**: エミュレータの実装 (`../src/ssc_emu.py`) |
-| **90分程度**  | **課題2**: 簡易ディスアセンブラの実装 (`../src/ssc_dis.py`) |
+| **150分程度** | **課題1**: エミュレータの実装 (`src/ssc_emu.py`) |
+| **90分程度**  | **課題2**: 簡易ディスアセンブラの実装 (`src/ssc_dis.py`) |
 
 ---
 
 ## 5. 実験課題
 
-### 課題1：エミュレータの実装 (`../src/ssc_emu.py`)
+### 課題1：エミュレータの実装 (`src/ssc_emu.py`)
 
-`../src/ssc_emu.py` 内の `SSCEmulator` クラスにある `run()` メソッドを完成させよ。
+`src/ssc_emu.py` 内の `SSCEmulator` クラスにある `run()` メソッドを完成させよ。
 
 #### 実装要件
 
@@ -112,20 +112,20 @@ Day1/
 #### 実行確認手順
 
 **1. CLI（ターミナル）からの実行確認:**
-ターミナルで `Day1/` ディレクトリに移動し、サンプルプログラム (`../samples/loop.sso`) を指定して実行せよ。
+ターミナルで `Day1/` ディレクトリに移動し、サンプルプログラム (`samples/loop.sso`) を指定して実行せよ。
 
 ```bash
 python src/ssc_emu.py samples/loop.sso
 ```
 
 **2. IDE (PyCharm等) からの直接デバッグ実行:**
-`../src/ssc_emu.py` の末尾にある `if __name__ == "__main__":` ブロック内のコメントを切り替えることで、組み込みサンプル (`source_text=SAMPLE_PROGRAM`) や指定ファイル (`file="..."`) の動作確認をIDEから直接行えます。
+`src/ssc_emu.py` の末尾にある `if __name__ == "__main__":` ブロック内のコメントを切り替えることで、組み込みサンプル (`source_text=SAMPLE_PROGRAM`) や指定ファイル (`file="..."`) の動作確認をIDEから直接行えます。
 
 ---
 
-### 課題2：簡易ディスアセンブラの実装 (`../src/ssc_dis.py`)
+### 課題2：簡易ディスアセンブラの実装 (`src/ssc_dis.py`)
 
-`../src/ssc_dis.py` 内の `SSCDisassembler` クラスにある `disassemble()` メソッドを完成させよ。
+`src/ssc_dis.py` 内の `SSCDisassembler` クラスにある `disassemble()` メソッドを完成させよ。
 
 #### 実装要件
 
@@ -136,9 +136,9 @@ python src/ssc_emu.py samples/loop.sso
 
 #### 実行確認手順
 
-`../src/ssc_trans.py` を用いてアセンブリサンプルを変換し、それを `src/ssc_dis.py` にパイプ渡して逆変換結果を確認せよ。
+`src/ssc_trans.py` を用いてアセンブリサンプルを変換し、それを `src/ssc_dis.py` にパイプ渡して逆変換結果を確認せよ。
 
-1. **既存サンプル（`../samples/add.sss`）を使ったパイプライン実行**:
+1. **既存サンプル（`samples/add.sss`）を使ったパイプライン実行**:
 
 ```bash
 python src/ssc_trans.py samples/add.sss | python src/ssc_dis.py
@@ -194,8 +194,8 @@ S/31
 
 実験終了後、以下の項目を含むレポートを作成し次回までに提出すること。
 
-1. 実装した `../src/ssc_emu.py` の `run()` メソッドのコードと解説。
-2. 実装した `../src/ssc_dis.py` の `disassemble()` メソッドのコードと解説。
+1. 実装した `src/ssc_emu.py` の `run()` メソッドのコードと解説。
+2. 実装した `src/ssc_dis.py` の `disassemble()` メソッドのコードと解説。
 3. 課題1および課題2の実行結果のスクリーンショットまたはログ出力。
 4. 考察：
    * 命令サイクルにおけるデコード処理の役割と、演算処理におけるオーバーフロー処理（`& 0xFF`）の必要性について述べよ。
