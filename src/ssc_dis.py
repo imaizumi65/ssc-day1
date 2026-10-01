@@ -15,7 +15,6 @@ SSC_OP_CHARS = ["J", "A", "B", "L", "T", "R", "W", "S"]
 class SSCDisassembler:
     """【第1回 課題2】簡易ディスアセンブラ"""
 
-
     def disassemble(self, memory: list[Word], lflag: bool = False) -> str:
         """【第1回 課題2】メモリ配列を受け取り、簡易表記形式の文字列を返せ
 
