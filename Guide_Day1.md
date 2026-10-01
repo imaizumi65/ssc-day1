@@ -101,13 +101,13 @@ Day1/
 3. **命令の実行ディスパッチ**:
    * `match-case` 文または `if-elif` 文を用いて、各オペコードに応じた処理を記述する。
      * **JUMP (0)**: `addr == 0` の場合、プログラム停止メッセージを表示して関数を抜け出す (`return`)。`addr != 0` かつ `to_signed(self.ac) >= 0` の場合、$\text{PC} \leftarrow \text{addr}$ とする。
-     * **ADD (1)**: $\text{AC} \leftarrow (\text{AC} + \text{memory}[\text{addr}].v) \text{&} 0\text{xFF}$
-     * **SUB (2)**: $\text{AC} \leftarrow (\text{AC} - \text{memory}[\text{addr}].v) \text{&} 0\text{xFF}$
+     * **ADD (1)**: $\text{AC} \leftarrow (\text{AC} + \text{memory}[\text{addr}].v) \text{＆} 0\text{xFF}$
+     * **SUB (2)**: $\text{AC} \leftarrow (\text{AC} - \text{memory}[\text{addr}].v) \text{＆} 0\text{xFF}$
      * **LOAD (3)**: $\text{AC} \leftarrow \text{memory}[\text{addr}].v$
      * **STORE (4)**: $\text{memory}[\text{addr}].v \leftarrow \text{AC}$
      * **READ (5)**: 標準入力（または指定ストリーム）から読み込んだ数値を `memory[addr].v` に格納する。
      * **WRITE (6)**: `memory[addr].v` の値を指定フォーマットで出力する。
-     * **SHIFT (7)**: $\text{AC} \leftarrow (\text{AC} \ll \text{addr}) \text{&} 0\text{xFF}$
+     * **SHIFT (7)**: $\text{AC} \leftarrow (\text{AC} \ll \text{addr}) \text{＆} 0\text{xFF}$
 
 #### 実行確認手順
 
