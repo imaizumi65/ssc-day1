@@ -1,4 +1,3 @@
-from enum import Enum, auto
 import io
 import sys
 from pathlib import Path
@@ -11,15 +10,6 @@ __all__ = ["SSCDisassembler", "Role", "SSC_OP_NAMES", "SSC_OP_CHARS"]
 # オペレーション名テーブル
 SSC_OP_NAMES = ["JUMP", "ADD", "SUB", "LOAD", "STORE", "READ", "WRITE", "SHIFT"]
 SSC_OP_CHARS = ["J", "A", "B", "L", "T", "R", "W", "S"]
-
-
-class Role(Enum):
-    """アドレスの役割を表す列挙型"""
-
-    EXECUTABLE = auto()  # 実行可能コード領域
-    JUMP_TARGET = auto()  # JUMP先ラベル L00:
-    DATA_READ = auto()  # 参照データラベル N00:
-    DATA_WRITE = auto()  # 変数書き込みラベル V00:
 
 
 class SSCDisassembler:
@@ -42,6 +32,7 @@ class SSCDisassembler:
         #  3. output_lines リストに追加し、最後に "\n".join(output_lines) で返す
         # -------------------------------------------------------------
         raise NotImplementedError("SSCDisassembler.disassemble() を実装してください。")
+        return "\n".join(output_lines)
 
 
 def main(
