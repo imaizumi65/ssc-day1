@@ -18,7 +18,7 @@
 
 SSCは、8ビットの語長と32ワードのメインメモリを持つ教育用プロセッサである。
 
-* **メモリ容量**: 32ワード（アドレス範囲：$0 \sim 31$）
+* **メモリ容量**: 32ワード（アドレス範囲: $0 \sim 31$）
 * **語長**: 8ビット ($0 \sim 255$ / 符号付き $-128 \sim 127$)
 * **レジスタ**:
   - **PC (Program Counter)**: 次に実行する命令のメモリ番地を保持（5ビット）
@@ -39,7 +39,7 @@ SSCの1ワード（8ビット）は、上位3ビットの**オペコード (OpCo
 
 | オペコード (10進) | ニーモニック | 略記 | 動作説明 |
 |-------------------| --- | --- | --- |
-| `000` (`0`)       | **JUMP** | `J` | アドレス $n=0$ の場合は**プログラム停止 (HALT)**。 $n \neq 0$ の場合、$\text{AC} \ge 0$ であれば $\text{PC} \leftarrow n$ に分岐。 |
+| `000` (`0`)       | **JUMP** | `J` | アドレス $n=0$ の場合は**プログラム停止 (HALT)**。 $n \neq 0$ の場合、 $\text{AC} \ge 0$ であれば $\text{PC} \leftarrow n$ に分岐。 |
 | `001` (`1`)       | **ADD** | `A` | $\text{AC} \leftarrow (\text{AC} + \text{Memory}[n]) \pmod{256}$<br> |
 | `010` (`2`)       | **SUB** | `B` | $\text{AC} \leftarrow (\text{AC} - \text{Memory}[n]) \pmod{256}$<br> |
 | `011` (`3`)       | **LOAD** | `L` | $\text{AC} \leftarrow \text{Memory}[n]$<br> |
@@ -100,7 +100,7 @@ Day1/
    * 次の命令のフェッチに備えて $\text{PC}$ をインクリメントする ($\text{PC} \leftarrow (\text{PC} + 1) \pmod{32}$)。
 3. **命令の実行ディスパッチ**:
    * `match-case` 文または `if-elif` 文を用いて、各オペコードに応じた処理を記述する。
-     * **JUMP (0)**: `addr == 0` の場合、プログラム停止メッセージを表示して関数を抜け出す (`return`)。`addr != 0` かつ `to_signed(self.ac) >= 0` の場合、$\text{PC} \leftarrow \text{addr}$ とする。
+     * **JUMP (0)**: `addr == 0` の場合、プログラム停止メッセージを表示して関数を抜け出す (`return`)。`addr != 0` かつ `to_signed(self.ac) >= 0` の場合、 $\text{PC} \leftarrow \text{addr}$ とする。
      * **ADD (1)**: $\text{AC} \leftarrow (\text{AC} + \text{memory}[\text{addr}].v) \text{＆} 0\text{xFF}$
      * **SUB (2)**: $\text{AC} \leftarrow (\text{AC} - \text{memory}[\text{addr}].v) \text{＆} 0\text{xFF}$
      * **LOAD (3)**: $\text{AC} \leftarrow \text{memory}[\text{addr}].v$
