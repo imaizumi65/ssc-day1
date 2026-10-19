@@ -87,7 +87,7 @@ def main(
 
     disassembler = SSCDisassembler()
     try:
-        result = disassembler.disassemble(memory, lflag=use_lflag)
+        result = disassembler.disassemble(memory)
         if result:
             print(result)
     except NotImplementedError as e:
